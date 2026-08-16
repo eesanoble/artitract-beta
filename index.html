@@ -1,0 +1,267 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artitract — where and when was it made?</title>
+<meta name="description" content="Five artifacts a day. Drop a pin, set a year, and see how close you got to what the catalogue says.">
+<meta property="og:title" content="Artitract">
+<meta property="og:description" content="Five artifacts a day. Drop a pin, set a year, and see how close you got to what the catalogue says.">
+<meta property="og:type" content="website">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;1,400&family=Inter:wght@400;500;600&display=swap">
+<style>
+  /* Presentational only — the same system as the game, see docs/STYLE.md. This
+     page makes no claim about any object; it does not even name one. */
+  :root{
+    --paper:#FBF9F3; --paper-2:#F4F1E8;
+    --ink:#14120E; --ink-2:#3E3A32; --stone:#6E685C; --stone-mute:#9A9488;
+    --rule:#DDD8CA; --rule-strong:#BEB8A6;
+    --verdigris:#4A6B5E; --oxide:#8C3A28;
+
+    --serif:"Cormorant Garamond","Iowan Old Style","Palatino Linotype",Palatino,Georgia,serif;
+    --sans:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Helvetica,Arial,sans-serif;
+    --wrap:760px;
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  /* Lining figures everywhere — see the note in game/index.html. Cormorant's
+     default 1 and 0 are a seriffed I and an O. */
+  body{margin:0;background:var(--paper);color:var(--ink-2);
+    font:400 15px/1.65 var(--sans);-webkit-font-smoothing:antialiased;
+    font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
+  .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+    font-variant-numeric:tabular-nums}
+  .wrap{width:100%;max-width:var(--wrap);margin:0 auto;padding:0 24px}
+
+  /* No rule under the header. It ran the full width while everything below it is
+     inside the 760px measure, so it cut across the page rather than closing it. */
+  header{padding:48px 0 30px}
+  .brand{margin:0;color:var(--ink);font:300 clamp(30px,6vw,44px)/1 var(--serif);
+    letter-spacing:.18em;text-transform:uppercase}
+  .tag{margin:16px 0 0;max-width:34em;color:var(--ink-2);
+    font-family:var(--serif);font-size:clamp(18px,2.4vw,21px);line-height:1.4}
+
+  main{padding:34px 0 8px}
+  h2{margin:44px 0 14px;color:var(--stone);
+    font:500 11px/1 var(--sans);letter-spacing:.14em;text-transform:uppercase}
+
+  /* ── today ──────────────────────────────────────────────────────────── */
+  /* One obvious thing to do. Everything else on the page is smaller than it. */
+  .today{display:block;text-decoration:none;color:inherit;
+    border:1px solid var(--ink);padding:26px 28px;
+    display:flex;gap:20px;align-items:center;flex-wrap:wrap;
+    transition:background-color .12s ease}
+  .today:hover{background:var(--paper-2)}
+  .today .lead{min-width:0}
+  .eyebrow{font:500 11px/1.4 var(--sans);letter-spacing:.14em;text-transform:uppercase;
+    color:var(--stone)}
+  /* Lining figures. Cormorant defaults to old-style, which turns a score of 102
+     into what reads as "IO2" at display size. */
+  .today h3{margin:6px 0 0;color:var(--ink);
+    font:300 clamp(28px,5vw,38px)/1.05 var(--serif);letter-spacing:.01em;
+    font-variant-numeric:lining-nums}
+  .today .state{margin:7px 0 0;font-size:13.5px;color:var(--stone)}
+  .today .cta{margin-left:auto;flex:0 0 auto;
+    font:500 12px/1 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+    background:var(--ink);color:var(--paper);padding:13px 24px}
+  .today .score{margin-left:auto;flex:0 0 auto;color:var(--ink);
+    font:300 40px/1 var(--serif);
+    font-variant-numeric:lining-nums tabular-nums;
+    font-feature-settings:"lnum" 1,"tnum" 1}
+  .today .score small{font:500 10px/1 var(--sans);letter-spacing:.14em;
+    text-transform:uppercase;color:var(--stone);margin-left:8px}
+
+  /* ── earlier days ───────────────────────────────────────────────────── */
+  .days{list-style:none;margin:0;padding:0}
+  .days li{border-bottom:1px solid var(--rule)}
+  .days li:last-child{border-bottom:0}
+  .days a{display:flex;gap:16px;align-items:baseline;padding:13px 0;
+    text-decoration:none;color:var(--ink)}
+  .days a:hover .name{border-bottom:1px solid var(--ink)}
+  /* Wide enough for "No. 100" — at 3.6em it wrapped onto two lines from day 100,
+     which is a year out and would have shipped unnoticed. */
+  .days .no{flex:0 0 auto;width:5em;white-space:nowrap;font:500 11px/1.6 var(--sans);
+    letter-spacing:.1em;text-transform:uppercase;color:var(--stone-mute)}
+  .days .name{border-bottom:1px solid transparent}
+  .days .state{margin-left:auto;flex:0 0 auto;font-size:13px;color:var(--stone);
+    font-variant-numeric:tabular-nums}
+  .days .state.done{color:var(--ink)}
+
+  .note{margin:18px 0 0;font-size:13.5px;line-height:1.65;color:var(--stone)}
+  .note em{font-style:normal;color:var(--ink-2)}
+  main{padding-bottom:56px}
+
+  @media(max-width:560px){
+    .today{align-items:flex-start}
+    .today .cta,.today .score{margin-left:0}
+  }
+</style>
+</head>
+<body>
+
+<header><div class="wrap">
+  <h1 class="brand">Artitract</h1>
+  <p class="tag" id="tag">Five artifacts a day.</p>
+</div></header>
+
+<main class="wrap">
+
+  <a class="today" id="today" href="game/index.html">
+    <span class="lead">
+      <span class="eyebrow" id="todayNo">Today</span>
+      <h3 id="todayDate">&nbsp;</h3>
+      <span class="state" id="todayState"></span>
+    </span>
+    <span class="cta" id="todayCta">Play</span>
+  </a>
+
+  <h2>Earlier days</h2>
+  <ol class="days" id="earlier"></ol>
+  <p class="note" id="earlierNote"></p>
+
+</main>
+
+<!-- No rights footer here, deliberately. The attribution and the "not a partner"
+     disclaimer are load-bearing wherever the Met's material is shown, and they stay
+     in the game's footer. This page shows no object, no photograph and no catalogue
+     text, so there is nothing on it to attribute. -->
+
+<script>
+"use strict";
+
+/* Deliberately duplicated from the game rather than shared through a module:
+   both files have to open by double-clicking, and `file://` blocks module
+   imports. This is the whole of it — the home page never loads the corpus and
+   never learns which objects a day contains. */
+
+const ROUNDS_PER_DAY = 5;
+const MAX_ROUND_SCORE = 200;
+const REPLAY_DAYS = 5;
+const EPOCH_DAY = '2026-08-16';
+const DAY_MS = 86400000;
+
+/* Null in the real game; `beta.sh` replaces this with the five frozen sets. See
+   the long note in game/index.html — the short version is that a beta tester is
+   asked to play five games in one sitting, and every piece of the daily model
+   exists to stop exactly that. */
+const BETA = {"sets":["2026-08-17","2026-08-18","2026-08-19","2026-08-20","2026-08-21"],"schedule":{"days":{"2026-08-17":["met:25743","met:692056","met:454858","met:469011","met:101307"],"2026-08-18":["met:453840","met:61338","met:37839","met:169785","met:24413"],"2026-08-19":["met:392495","met:37748","met:461723","met:12746","met:175837"],"2026-08-20":["met:671243","met:257788","met:36880","met:3690","met:44127"],"2026-08-21":["met:328766","met:1322","met:456292","met:449731","met:46475"]}}}; /*__BETA__*/
+const betaIndex = d => BETA ? BETA.sets.indexOf(d) : -1;
+
+const stamp = s => Date.parse(s + 'T00:00:00Z');
+const isoDay = ms => new Date(ms).toISOString().slice(0, 10);
+const todayUTC = () => isoDay(Date.now());
+const shiftDay = (d, n) => isoDay(stamp(d) + n * DAY_MS);
+const dayNumber = d => BETA ? betaIndex(d) + 1
+  : Math.round((stamp(d) - stamp(EPOCH_DAY)) / DAY_MS) + 1;
+
+const MONTHS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+const DAYS = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+function dayLabel(d){
+  if (BETA) return 'Set ' + (betaIndex(d) + 1) + ' of ' + BETA.sets.length;
+  const t = new Date(stamp(d));
+  return DAYS[t.getUTCDay()] + ' ' + t.getUTCDate() + ' ' +
+         MONTHS[t.getUTCMonth()] + ' ' + t.getUTCFullYear();
+}
+
+const DAY_MAX = ROUNDS_PER_DAY * MAX_ROUND_SCORE;
+const $ = id => document.getElementById(id);
+const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
+  c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+// The same record the game writes. Read only — nothing here ever saves.
+function loadDay(d){
+  try{
+    const v = localStorage.getItem('artitract.day.' + d);
+    const p = v ? JSON.parse(v) : null;
+    if (!p || !Array.isArray(p.rounds)) return null;
+    const played = p.rounds.filter(Boolean).length;
+    return {
+      done: !!p.done || played >= ROUNDS_PER_DAY,
+      played,
+      total: p.rounds.reduce((n, r) => n + (r ? r.total : 0), 0)
+    };
+  }catch(e){ return null; }
+}
+
+const today = todayUTC();
+
+if (BETA){
+  $('tag').textContent = 'Five sets of five, for you to break.';
+  document.title = 'Artitract — beta';
+}
+
+/* The hero is the one obvious thing to do. In the real game that is always today.
+   In the beta all five are open at once, so the obvious thing is the first one
+   you have not finished — and once they are all done, the first. */
+const heroDay = BETA
+  ? (BETA.sets.find(d => { const s = loadDay(d); return !(s && s.done); }) || BETA.sets[0])
+  : today;
+
+$('todayNo').textContent = BETA
+  ? 'Beta · ' + dayLabel(heroDay)
+  : 'Today · No. ' + dayNumber(today);
+$('todayDate').textContent = BETA ? 'Five artifacts' : dayLabel(today);
+$('today').href = 'game/index.html?d=' + heroDay;
+
+const t = loadDay(heroDay);
+if (t && t.done){
+  $('todayState').textContent = BETA
+    ? 'Played. The other sets are below.'
+    : 'Played. Come back at midnight UTC for the next five.';
+  $('todayCta').outerHTML = '<span class="score">' + t.total +
+    '<small>of ' + DAY_MAX.toLocaleString() + '</small></span>';
+} else if (t && t.played){
+  $('todayState').textContent = t.played + ' of ' + ROUNDS_PER_DAY + ' rounds done.';
+  $('todayCta').textContent = 'Continue';
+} else {
+  $('todayState').textContent =
+    ROUNDS_PER_DAY + ' artifacts · scored out of ' + DAY_MAX.toLocaleString();
+}
+
+const stateFor = d => {
+  const s = loadDay(d);
+  return s && s.done
+      ? '<span class="state done mono">' + s.total.toLocaleString() + ' / ' +
+        DAY_MAX.toLocaleString() + '</span>'
+    : s && s.played
+      ? '<span class="state">' + s.played + '/' + ROUNDS_PER_DAY + ' — resume</span>'
+      : '<span class="state">not played</span>';
+};
+const row = (d, name) =>
+  '<li><a href="game/index.html?d=' + esc(d) + '">' +
+    '<span class="no">' + (BETA ? 'Set ' + dayNumber(d) : 'No. ' + dayNumber(d)) + '</span>' +
+    '<span class="name">' + esc(name) + '</span>' + stateFor(d) + '</a></li>';
+
+const rows = [];
+if (BETA){
+  // Every set except whichever one the hero is offering, in their own order.
+  // Named for what is in it, not for which one it is — the left column already
+  // says that, and "Set 2 · Set 2 of 5" says it twice.
+  for (const d of BETA.sets)
+    if (d !== heroDay) rows.push(row(d, 'Five artifacts'));
+} else {
+  // Stops at the epoch. Without that floor the list runs backwards past day one
+  // into puzzle numbers that never existed.
+  for (let n = 1; n <= REPLAY_DAYS; n++){
+    const d = shiftDay(today, -n);
+    if (stamp(d) < stamp(EPOCH_DAY)) break;
+    rows.push(row(d, n === 1 ? 'Yesterday' : dayLabel(d)));
+  }
+}
+
+const heading = $('earlier').previousElementSibling;
+if (rows.length){
+  if (BETA) heading.textContent = 'The other sets';
+  $('earlier').innerHTML = rows.join('');
+} else {
+  heading.hidden = true;
+  $('earlier').hidden = true;
+}
+$('earlierNote').textContent = BETA
+  ? 'A beta. All five sets are open — play them in any order. The real thing puts out one a day.'
+  : 'New set out every day at midnight UTC.';
+</script>
+</body>
+</html>
