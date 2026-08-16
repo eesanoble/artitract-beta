@@ -188,7 +188,10 @@ function loadDay(d){
 const today = todayUTC();
 
 if (BETA){
-  $('tag').textContent = 'Five sets of five, for you to break.';
+  // The owner's words, kept exactly as written — lowercase, "pls" and all. The
+  // beta goes to friends, and the register is the point: it asks for an opinion
+  // rather than announcing a product. Production keeps "Five artifacts a day."
+  $('tag').textContent = 'a cool guessr game me and ed built pls tell us if its good';
   document.title = 'Artitract — beta';
 }
 
