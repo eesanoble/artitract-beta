@@ -35,6 +35,11 @@
     --wrap:1240px;
   }
   *{box-sizing:border-box}
+  /* The browser's own `[hidden]` rule is `display:none` at the lowest possible
+     specificity, so any class that sets `display` beats it — `.card` is
+     `display:flex`, and a card marked hidden stayed on screen. Anything relying
+     on the attribute needs this. */
+  [hidden]{display:none !important}
   /* One screen, no page scroll. The photograph and the map are the two elastic
      elements: everything else is intrinsically sized and they absorb the slack. */
   html,body{height:100%}
@@ -76,33 +81,60 @@
     text-transform:uppercase;color:var(--stone)}
 
   /* ── page ───────────────────────────────────────────────────────────── */
+  /* Named areas rather than source order, because the two layouts want different
+     orders: side by side the details belong under the photograph, stacked they
+     belong at the very end. */
   main{flex:1 1 auto;min-height:0;width:100%;
     display:grid;grid-template-columns:minmax(0,.85fr) minmax(0,1.15fr);
-    gap:40px;padding:22px 32px 18px;align-items:stretch;
+    grid-template-rows:1fr auto;
+    grid-template-areas:"object play" "detail play";
+    gap:22px 40px;padding:22px 32px 18px;align-items:stretch;
     max-width:var(--wrap);margin:0 auto}
+  #objectCard{grid-area:object}
+  #playCard{grid-area:play}
+  #detailCard{grid-area:detail}
   .card{min-width:0;min-height:0;display:flex;flex-direction:column}
-  main > .card + .card{border-left:1px solid var(--rule);padding-left:40px}
+  #playCard{border-left:1px solid var(--rule);padding-left:40px}
   /* Last resort only: if the viewport is genuinely too short for the reveal,
      the right column scrolls rather than the whole page. */
-  main > .card + .card{overflow-y:auto;scrollbar-width:thin}
+  #playCard{overflow-y:auto;scrollbar-width:thin}
 
   /* Stacked layout cannot fit one screen, so short/narrow viewports get the
      document back. */
   @media(max-width:960px),(max-height:560px){
     html,body{height:auto}
     body{overflow:auto}
-    main{grid-template-columns:1fr;gap:28px;padding:24px 20px 32px;min-height:0}
-    main > .card + .card{border-left:0;padding-left:0;overflow:visible;
-      border-top:1px solid var(--rule);padding-top:28px}
-    header{padding:24px 20px 18px}
-    #shot{max-height:44vh}
+    main{grid-template-columns:1fr;grid-template-rows:none;
+      grid-template-areas:"object" "play" "detail";
+      gap:22px;padding:18px 18px 30px;min-height:0}
+    #playCard{border-left:0;padding-left:0;overflow:visible;
+      border-top:1px solid var(--rule);padding-top:22px}
+    #detailCard{border-top:1px solid var(--rule);padding-top:20px}
+    header{padding:18px 18px 14px}
+    #shot{max-height:42vh}
+    /* One row of header, not three: the score is the only thing here that changes
+       often enough to be worth its size, and it was being pushed onto a line of
+       its own by a date the player has just read on the front page. */
+    .chips{gap:16px}
+    #day .when{display:none}
+    .score{font-size:22px}
+    .score small{font-size:9px}
+    /* The question is the only thing above the map, and at 19px over two lines it
+       pushed the map most of the way off the first screen. */
+    .brief .ask{font-size:17px}
+    .brief{padding-bottom:11px;margin-bottom:13px}
+    /* The map is the thing being interacted with; give it more of the screen than
+       the 150px floor the desktop column needs. */
+    #map{min-height:300px}
   }
 
   /* ── the object ─────────────────────────────────────────────────────── */
   #objectPane{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
   #shot{width:100%;flex:1 1 auto;min-height:0;object-fit:contain;display:block;
     background:var(--paper-2);border:1px solid var(--rule)}
-  .title{flex:0 0 auto;margin:18px 0 0;color:var(--ink);
+  /* No top margin: it is the first thing in its own card now, and the card's
+     padding already spaces it. */
+  .title{flex:0 0 auto;margin:0;color:var(--ink);
     font:400 clamp(20px,1.9vw,26px)/1.2 var(--serif);letter-spacing:.01em;
     font-variant-numeric:lining-nums;font-feature-settings:"lnum" 1}
   /* Withheld until the guess is locked — Met titles frequently name the place. */
@@ -115,6 +147,25 @@
     color:var(--stone);white-space:nowrap}
   dd{margin:0;min-width:0;overflow-wrap:anywhere;
     font:400 14px/1.45 var(--sans);color:var(--ink)}
+
+  /* The catalogue record, folded away. It is the supporting evidence, not the
+     answer — the answer is the score and the two lines above it — and on a phone
+     six rows of small print between the verdict and the next round is the bulk
+     that makes the screen feel busy. Open by default where there is room. */
+  .facts{margin:14px 0 0;border-top:1px solid var(--rule)}
+  .facts > summary{list-style:none;cursor:pointer;padding:11px 0 0;
+    display:flex;align-items:center;gap:8px;
+    font:500 11px/1.45 var(--sans);letter-spacing:.12em;text-transform:uppercase;
+    color:var(--stone)}
+  .facts > summary::-webkit-details-marker{display:none}
+  /* A caret drawn from a border, so there is no glyph to go missing. */
+  .facts > summary::after{content:'';width:6px;height:6px;flex:0 0 auto;
+    border-right:1px solid currentColor;border-bottom:1px solid currentColor;
+    transform:translateY(-2px) rotate(45deg);transition:transform .15s ease}
+  .facts[open] > summary::after{transform:translateY(1px) rotate(225deg)}
+  .facts > summary:hover{color:var(--ink)}
+  .facts > summary:focus-visible{outline:2px solid var(--verdigris);outline-offset:3px}
+  .facts dl{margin-top:13px}
 
   /* ── the brief ──────────────────────────────────────────────────────── */
   .brief{flex:0 0 auto;font:400 13.5px/1.5 var(--sans);color:var(--stone);
@@ -204,6 +255,15 @@
   .ticks span:first-child::before{left:0}
   .ticks span:last-child{transform:translateX(-100%)}
   .ticks span:last-child::before{left:auto;right:0}
+  /* Five labels do not fit a phone. `display:none` and not `visibility` — the
+     first-child and last-child rules above must keep matching the same two ends
+     of the axis whichever labels are showing, and they do, because neither
+     property changes what those selectors match.
+
+     Not `.drop`, which was the first name for this and is already the file-drop
+     zone's class — the two labels inherited a dashed border and 36px of padding
+     and turned into empty boxes hanging off the axis. */
+  @media(max-width:560px){ .ticks span.minor{display:none} }
 
   /* Catalogue range in verdigris — what the experts say. The player's mark in
      oxide — the gap between the guess and it. */
@@ -383,17 +443,31 @@
   </div>
 </header>
 
+<!-- Three blocks, not two, and each a direct child of the grid. The catalogue
+     details used to live inside the object card, which put them between the
+     photograph and the map once the layout stacked — so on a phone the answer
+     arrived above the thing being answered. As siblings, the desktop grid can
+     keep them under the photograph while the stacked layout sends them to the
+     end, and neither has to compromise for the other. -->
 <main>
-  <section class="card">
+  <section class="card" id="objectCard">
     <div id="objectPane"><div class="empty">Loading…</div></div>
   </section>
 
-  <section class="card">
+  <section class="card" id="playCard">
     <div class="brief" id="brief"></div>
     <div id="map"></div>
     <div id="guessPane"></div>
-    <div class="actions" id="actions"></div>
+    <!-- After the verdict, not before it. While guessing the verdict is empty,
+         so Score still sits directly under the year slider; once the round is
+         scored, Next stops standing between the map and the result the player
+         is there to read. -->
     <div id="verdict"></div>
+    <div class="actions" id="actions"></div>
+  </section>
+
+  <section class="card" id="detailCard" hidden>
+    <div id="detail"></div>
   </section>
 </main>
 
@@ -1152,6 +1226,9 @@ const esc = s => String(s == null ? '' : s).replace(/[&<>"']/g,
    scheme but http and https resolves to nothing rather than to a link. */
 const safeUrl = u => /^https?:\/\//i.test(String(u || '')) ? String(u) : '';
 const $ = id => document.getElementById(id);
+// The one breakpoint the script needs to know about, matching the stylesheet's.
+const WIDE = (typeof matchMedia === 'function')
+  ? matchMedia('(min-width:961px)') : { matches: true };
 const clamp = (v,a,b) => Math.max(a, Math.min(b, v));
 
 /* ══════════════════════════════════════════════════════════════ geometry ══
@@ -1316,8 +1393,17 @@ const rangeLabel = (b,e) =>
                       : yearLabel(b)+'–'+yearLabel(e);
 const pct = y => (y - TIMELINE_MIN) / (TIMELINE_MAX - TIMELINE_MIN) * 100;
 const clampPct = y => clamp(pct(y), 0, 100);
-const ticksHtml = years => '<div class="ticks">' + years.map(y =>
-  '<span style="left:'+clampPct(y).toFixed(2)+'%">'+esc(yearLabel(y))+'</span>').join('') + '</div>';
+/* The axis labels. The two marked `drop` are the first to go when there is not
+   enough width for five: at a phone's width "1000 AD" sits about 80% along and
+   "2025 AD" is flush to the right end, and they run into each other — the axis
+   read "1000 A2A25 AD", which looks like corrupt data rather than a tight fit.
+   Hidden in CSS rather than chosen here, so the same markup serves both. */
+const TICKS = [
+  { y:-3000 }, { y:-1000, minor:true }, { y:1 }, { y:1000, minor:true }, { y:2025 }
+];
+const ticksHtml = () => '<div class="ticks">' + TICKS.map(t =>
+  '<span'+(t.minor ? ' class="minor"' : '')+' style="left:'+clampPct(t.y).toFixed(2)+'%">'+
+  esc(yearLabel(t.y))+'</span>').join('') + '</div>';
 
 /* ═══════════════════════════════════════════════════════════════════ map ══ */
 
@@ -1376,8 +1462,16 @@ function clearLayers(){ G.layers.forEach(l=>map.removeLayer(l)); G.layers=[]; }
 // The map is the elastic element in a fixed-viewport layout — it grows and
 // shrinks as the guess pane and the score block come and go — so Leaflet has to
 // be told its container changed size.
+/* Extra room at the bottom, because the "Your guess" caption hangs 15px BELOW the
+   pin it labels. `pad` on the bounds only grows them in degrees, which is not the
+   same as clearing a fixed number of pixels — on a short map the pin fitted fine
+   and its caption was sliced off by the container edge. Pixel padding is the only
+   kind that knows how tall the caption is. */
 function fitToAnswer(){
-  if (G.fit) map.fitBounds(G.fit, {maxZoom:7, animate:false});
+  if (G.fit) map.fitBounds(G.fit, {
+    maxZoom: 7, animate: false,
+    paddingTopLeft: [14, 14], paddingBottomRight: [14, 32]
+  });
 }
 if (typeof ResizeObserver === 'function')
   new ResizeObserver(() => {
@@ -1551,9 +1645,19 @@ function renderObject(){
   // of it arrives at the reveal instead. Look at the object.
   $('objectPane').innerHTML =
     '<img id="shot" src="'+esc(safeUrl(c.imageUrlSmall||c.imageUrl))+
-      '" alt="Photograph of the artifact to be placed and dated">'+
+      '" alt="Photograph of the artifact to be placed and dated">';
+
+  // Built empty and hidden every round, which is also what clears the `revealed`
+  // flag on the list — rebuilding the node is the reset.
+  $('detailCard').hidden = true;
+  $('detail').innerHTML =
     '<div class="title" id="title"></div>'+
-    '<dl id="facts"></dl>';
+    '<details class="facts" id="factsBox">'+
+      '<summary>Catalogue record</summary>'+
+      '<dl id="facts"></dl>'+
+    '</details>';
+  // Room for it side by side; on a phone it stays folded until asked for.
+  $('factsBox').open = WIDE.matches;
 
   // No target size or difficulty band up front: the size of the target is the
   // catalogue's confidence, and quoting it as a number turns that into a
@@ -1589,7 +1693,7 @@ function renderGuessPane(){
         '<input type="range" id="yr" min="'+TIMELINE_MIN+'" max="'+TIMELINE_MAX+
           '" step="'+TIMELINE_STEP+'" value="'+G.year+
           '" aria-label="Year the object was made">'+
-        ticksHtml([-3000,-1000,1,1000,2025])+
+        ticksHtml()+
       '</div>'+
     '</div>';
   $('yr').addEventListener('input', e => {
@@ -1741,7 +1845,7 @@ function dateBand(c){
     '<u style="left:'+g.toFixed(2)+'%">'+
       '<b style="transform:translateX('+nudge(g)+')">'+esc(yearLabel(G.year))+
       '</b></u></div>'+
-    ticksHtml([-3000,-1000,1,1000,2025]);
+    ticksHtml();
 }
 
 /* The record arrives once guessing is over: the title, the classification, the
@@ -1752,6 +1856,12 @@ function dateBand(c){
    record is the authority, and the game may show a field or omit it, never
    rewrite one. */
 function revealCatalogue(c){
+  // The question has been answered, so stop asking it. It is the first thing
+  // between the photograph and the map, and once the round is over it is just a
+  // line of type standing where the answer should be.
+  $('brief').innerHTML = '';
+  $('detailCard').hidden = false;
+
   const t = $('title');
   if (t && !t.textContent) t.textContent = c.title;
 
@@ -1771,8 +1881,10 @@ function revealCatalogue(c){
     row('Credit', r.creditLine) +
     // Provenance sits with the object, not under the score.
     '<div class="meta">' + esc(r.sourceInstitution || '') +
+      // Not "catalogue record" — that is now the name of the block this sits in,
+      // and the same two words twice reads as the same thing twice.
       (safeUrl(r.objectPageUrl) ? ' · <a href="' + esc(safeUrl(r.objectPageUrl)) +
-        '" target="_blank" rel="noopener">catalogue record →</a>' : '') + '</div>');
+        '" target="_blank" rel="noopener">view on metmuseum.org →</a>' : '') + '</div>');
 }
 
 function nextRound(){
@@ -2077,10 +2189,14 @@ function accept(data, whence){
   G.scheduled = picked.scheduled;
   G.i = 0; G.total = 0; G.played = 0; G.perfect = 0; G.rounds = []; G.done = false;
 
+  // The date is wrapped so a phone can drop it: "No. 1" is the identity, the date
+  // is a restatement of what the front page just said, and keeping both pushed the
+  // running score onto a third line of header. The beta's label is NOT wrapped —
+  // there it is the whole identity, and "Beta" alone says nothing.
   $('day').innerHTML = BETA
     ? 'Beta<span class="sep">·</span>'+esc(dayLabel(day))
     : 'No. '+dayNumber(day)+
-      '<span class="sep">·</span>'+esc(dayLabel(day))+
+      '<span class="when"><span class="sep">·</span>'+esc(dayLabel(day))+'</span>'+
       (day === today ? '' : ' <a href="?d='+esc(today)+'">today →</a>');
 
   if (!G.objects.length) return showLoader();
